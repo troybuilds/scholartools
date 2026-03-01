@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://troybuilds.github.io/scholartools/sitemap.xml
