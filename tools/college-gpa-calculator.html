@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>College GPA Calculator — Multi-Semester & Cumulative | ScholarTools</title>
+  <meta name="description" content="Advanced college GPA calculator. Track multiple semesters, calculate cumulative GPA, customize your grading scale, and see real-time GPA updates as you type. Free, no signup." />
+  <link rel="canonical" href="https://YOURUSERNAME.github.io/scholartools/tools/college-gpa-calculator.html" />
+
+  <meta property="og:title" content="College GPA Calculator — Multi-Semester & Cumulative | ScholarTools" />
+  <meta property="og:description" content="Track your GPA across every semester. Real-time updates, customizable scale, cumulative GPA. Free." />
+  <meta property="og:type" content="website" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "College GPA Calculator",
+    "url": "https://YOURUSERNAME.github.io/scholartools/tools/college-gpa-calculator.html",
+    "description": "Calculate your college GPA across multiple semesters with real-time updates and cumulative tracking.",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161e;
+      --surface2: #1a1e28;
+      --surface3: #1f2333;
+      --border: rgba(255,255,255,0.07);
+      --accent: #e8c97a;
+      --accent2: #6ee7b7;
+      --accent3: #93c5fd;
+      --accent4: #c4b5fd;
+      --text: #f0f2f7;
+      --muted: #8891a8;
+      --danger: #f87171;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav.topnav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 2.5rem;
+      background: rgba(13,15,20,0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 800; color: var(--text); text-decoration: none; }
+    .logo span { color: var(--accent); }
+    .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-link { color: var(--muted); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: color 0.2s; }
+    .nav-link:hover { color: var(--text); }
+
+    /* ── TWO-COLUMN LAYOUT ── */
+    .app-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 1.5rem;
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 6rem;
+      align-items: start;
+    }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 1.8rem;
+    }
+    .breadcrumb a { color: var(--muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--accent); }
+    .breadcrumb span { opacity: 0.4; }
+
+    /* ── PAGE HEADER ── */
+    .page-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(196,181,253,0.1);
+      border: 1px solid rgba(196,181,253,0.2);
+      color: var(--accent4);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.8rem;
+      border-radius: 100px;
+      margin-bottom: 1rem;
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.7rem;
+    }
+    .page-desc { color: var(--muted); font-size: 0.95rem; max-width: 560px; font-weight: 300; margin-bottom: 0.7rem; }
+    .page-desc-seo { color: var(--muted); font-size: 0.875rem; max-width: 580px; font-weight: 300; margin-bottom: 2rem; line-height: 1.7; }
+
+    /* ── SEMESTER CARD ── */
+    .semester-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin-bottom: 1.2rem;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .semester-card:focus-within { border-color: rgba(196,181,253,0.25); }
+
+    .semester-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .semester-left { display: flex; align-items: center; gap: 0.8rem; }
+    .semester-number {
+      width: 28px; height: 28px;
+      background: rgba(196,181,253,0.12);
+      border: 1px solid rgba(196,181,253,0.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; color: var(--accent4);
+      flex-shrink: 0;
+    }
+    .semester-name-input {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      outline: none;
+      width: 160px;
+      cursor: text;
+    }
+    .semester-name-input::placeholder { color: var(--muted); }
+
+    .semester-right { display: flex; align-items: center; gap: 1rem; }
+    .semester-gpa-badge {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent4);
+      min-width: 50px;
+      text-align: right;
+    }
+    .semester-credits-badge {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .collapse-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.25s, color 0.2s;
+      padding: 0.2rem;
+    }
+    .collapse-btn:hover { color: var(--text); }
+    .semester-card.collapsed .collapse-btn { transform: rotate(-90deg); }
+    .delete-sem-btn {
+      background: none;
+      border: none;
+      color: #3a3f50;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: color 0.2s;
+      padding: 0.2rem;
+    }
+    .delete-sem-btn:hover { color: var(--danger); }
+
+    .semester-body { padding: 1.2rem 1.5rem; }
+    .semester-card.collapsed .semester-body { display: none; }
+
+    /* ── COURSE ROWS ── */
+    .course-col-headers {
+      display: grid;
+      grid-template-columns: 1fr 110px 70px 36px;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .col-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #3a3f50;
+      text-align: center;
+    }
+    .col-label:first-child { text-align: left; }
+
+    .course-rows { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.8rem; }
+    .course-row {
+      display: grid;
+      grid-template-columns: 1fr 110px 70px 36px;
+      gap: 0.5rem;
+      align-items: center;
+      animation: fadeUp 0.18s ease both;
+    }
+
+    .course-name-input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      padding: 0.55rem 0.8rem;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+    .course-name-input:focus { border-color: var(--accent4); }
+    .course-name-input::placeholder { color: #3a3f50; }
+
+    select.grade-sel {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      padding: 0.55rem 0.7rem;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238891a8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.6rem center;
+      padding-right: 1.8rem;
+    }
+    select.grade-sel:focus { border-color: var(--accent4); }
+    select.grade-sel option { background: #1a1e28; }
+
+    input.credits-in {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      padding: 0.55rem 0.5rem;
+      outline: none;
+      text-align: center;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
+    }
+    input.credits-in::-webkit-outer-spin-button,
+    input.credits-in::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input.credits-in:focus { border-color: var(--accent4); }
+    input.credits-in::placeholder { color: #3a3f50; }
+
+    .remove-row-btn {
+      background: none; border: none;
+      color: #3a3f50; font-size: 1.1rem;
+      cursor: pointer; transition: color 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      height: 34px;
+    }
+    .remove-row-btn:hover { color: var(--danger); }
+
+    .add-course-btn {
+      background: none;
+      border: 1px dashed rgba(196,181,253,0.25);
+      color: var(--accent4);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.4rem 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .add-course-btn:hover { background: rgba(196,181,253,0.07); }
+
+    /* ── ADD SEMESTER ── */
+    .add-semester-btn {
+      width: 100%;
+      background: none;
+      border: 1px dashed rgba(196,181,253,0.2);
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.9rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+      margin-bottom: 1.5rem;
+    }
+    .add-semester-btn:hover {
+      border-color: rgba(196,181,253,0.4);
+      color: var(--accent4);
+      background: rgba(196,181,253,0.04);
+    }
+
+    /* ── STICKY SIDEBAR ── */
+    .sidebar { position: sticky; top: 90px; display: flex; flex-direction: column; gap: 1.2rem; }
+
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.6rem;
+    }
+    .summary-card-title {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.2rem;
+    }
+
+    .cumulative-gpa {
+      text-align: center;
+      margin-bottom: 1.4rem;
+    }
+    .cum-gpa-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: var(--accent4);
+      transition: color 0.4s;
+    }
+    .cum-gpa-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-top: 0.3rem;
+    }
+    .cum-letter {
+      display: inline-block;
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      background: rgba(196,181,253,0.1);
+      border: 1px solid rgba(196,181,253,0.2);
+      padding: 0.2rem 0.8rem;
+      border-radius: 6px;
+      margin-top: 0.5rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+      margin-bottom: 1.2rem;
+    }
+    .stat-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.9rem;
+      text-align: center;
+    }
+    .stat-box-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .stat-box-key {
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.15rem;
+    }
+
+    /* semester GPA mini list */
+    .semester-gpa-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .sem-gpa-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      gap: 0.5rem;
+    }
+    .sem-gpa-name { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+    .sem-gpa-bar-wrap { flex: 1; }
+    .sem-gpa-bar-track { height: 4px; background: var(--surface2); border-radius: 100px; overflow: hidden; }
+    .sem-gpa-bar-fill { height: 100%; background: var(--accent4); border-radius: 100px; transition: width 0.4s ease; }
+    .sem-gpa-val { font-weight: 600; color: var(--text); min-width: 34px; text-align: right; font-size: 0.82rem; }
+
+    /* ── SCALE EDITOR ── */
+    .scale-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.4rem;
+    }
+    .scale-card-title {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+    .scale-card-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 1rem; }
+    .scale-preset-row { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .preset-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .preset-btn:hover, .preset-btn.active {
+      background: rgba(196,181,253,0.1);
+      border-color: rgba(196,181,253,0.3);
+      color: var(--accent4);
+    }
+    .scale-rows { display: flex; flex-direction: column; gap: 0.35rem; max-height: 260px; overflow-y: auto; padding-right: 2px; }
+    .scale-rows::-webkit-scrollbar { width: 4px; }
+    .scale-rows::-webkit-scrollbar-track { background: transparent; }
+    .scale-rows::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 4px; }
+    .scale-row {
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .scale-grade-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent4);
+      text-align: center;
+    }
+    input.scale-val {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      padding: 0.35rem 0.6rem;
+      outline: none;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
+    }
+    input.scale-val::-webkit-outer-spin-button,
+    input.scale-val::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input.scale-val:focus { border-color: var(--accent4); }
+
+    /* ── CONTENT ── */
+    .content-col { grid-column: 1 / -1; }
+    .content-section { margin-bottom: 3rem; }
+    .content-section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .content-section p { color: var(--muted); font-size: 0.93rem; line-height: 1.8; margin-bottom: 0.9rem; }
+    .content-section p strong { color: var(--text); }
+    .formula-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent4);
+      border-radius: 8px;
+      padding: 1.1rem 1.4rem;
+      margin: 1.1rem 0;
+      font-family: monospace;
+      font-size: 0.88rem;
+      color: var(--accent4);
+      line-height: 1.7;
+    }
+    .steps-list { list-style: none; counter-reset: steps; margin: 1rem 0; }
+    .steps-list li {
+      counter-increment: steps;
+      display: flex; gap: 1rem;
+      margin-bottom: 0.9rem;
+      color: var(--muted);
+      font-size: 0.93rem;
+      line-height: 1.7;
+    }
+    .steps-list li::before {
+      content: counter(steps);
+      display: flex; align-items: center; justify-content: center;
+      min-width: 26px; height: 26px;
+      background: rgba(196,181,253,0.1);
+      border: 1px solid rgba(196,181,253,0.2);
+      color: var(--accent4);
+      font-size: 0.75rem; font-weight: 700;
+      border-radius: 50%; margin-top: 0.15rem;
+    }
+    .steps-list li strong { color: var(--text); }
+
+    /* FAQ */
+    .faq-list { display: flex; flex-direction: column; gap: 0.8rem; }
+    .faq-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-q {
+      width: 100%; background: none; border: none;
+      color: var(--text); font-family: 'DM Sans', sans-serif;
+      font-size: 0.93rem; font-weight: 600;
+      text-align: left; padding: 1rem 1.3rem;
+      cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+      transition: color 0.2s;
+    }
+    .faq-q:hover { color: var(--accent4); }
+    .faq-icon { font-size: 1.2rem; color: var(--muted); transition: transform 0.25s; flex-shrink: 0; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); color: var(--accent4); }
+    .faq-a {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      color: var(--muted); font-size: 0.88rem; line-height: 1.75;
+      padding: 0 1.3rem;
+    }
+    .faq-item.open .faq-a { max-height: 300px; padding: 0 1.3rem 1.1rem; }
+
+    /* RELATED */
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+    .related-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.2rem; text-decoration: none; color: var(--text);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .related-card:hover { transform: translateY(-2px); }
+    .related-card.gold:hover { border-color: rgba(232,201,122,0.3); }
+    .related-card.green:hover { border-color: rgba(110,231,183,0.3); }
+    .related-card.blue:hover { border-color: rgba(147,197,253,0.3); }
+    .related-card.disabled { opacity: 0.5; cursor: default; pointer-events: none; }
+    .related-icon { font-size: 1.3rem; margin-bottom: 0.5rem; }
+    .related-name { font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem; }
+    .related-desc { color: var(--muted); font-size: 0.78rem; }
+
+    /* FOOTER */
+    footer { text-align: center; padding: 2.5rem 2rem; color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--border); }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 860px) {
+      .app-wrapper { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+    }
+    @media (max-width: 560px) {
+      nav.topnav { padding: 1rem 1.2rem; }
+      .app-wrapper { padding: 1.5rem 1rem 4rem; }
+      .course-col-headers { grid-template-columns: 1fr 95px 60px 30px; gap: 0.4rem; }
+      .course-row { grid-template-columns: 1fr 95px 60px 30px; gap: 0.4rem; }
+      .cum-gpa-number { font-size: 2.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="../index.html" class="logo">Scholar<span>Tools</span></a>
+  <div class="nav-right">
+    <a href="../index.html#tools" class="nav-link">All Tools</a>
+    <a href="../index.html" class="nav-link" style="display:flex;align-items:center;gap:0.4rem;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Home
+    </a>
+  </div>
+</nav>
+
+<div class="app-wrapper">
+
+  <!-- LEFT: MAIN COLUMN -->
+  <div class="main-col">
+
+    <nav class="breadcrumb" aria-label="breadcrumb">
+      <a href="../index.html">ScholarTools</a>
+      <span>›</span>
+      <a href="../index.html#tools">Tools</a>
+      <span>›</span>
+      <span style="color:var(--text)">College GPA Calculator</span>
+    </nav>
+
+    <div style="margin-bottom:2rem;">
+      <div class="page-tag">🎓 Advanced GPA</div>
+      <h1>College GPA Calculator</h1>
+      <p class="page-desc">Track your GPA across every semester — semester by semester, or all at once. Real-time updates as you type.</p>
+      <p class="page-desc-seo">Use this free college GPA calculator to find out <em>"what is my college GPA?"</em> and <em>"how do I calculate my cumulative GPA?"</em> Add multiple semesters, enter your courses and credit hours, and customize your school's grading scale. Your GPA updates instantly with every change.</p>
+    </div>
+
+    <!-- SEMESTERS -->
+    <div id="semesters-container"></div>
+
+    <button class="add-semester-btn" onclick="addSemester()">
+      + Add Semester
+    </button>
+
+    <!-- CONTENT SECTIONS -->
+    <div class="content-section">
+      <h2>How to Calculate Your College GPA</h2>
+      <p>Your college GPA is a weighted average where each course is weighted by its credit hours. The formula is the same whether you're calculating a single semester or your cumulative GPA across your entire college career.</p>
+      <div class="formula-box">
+        Semester GPA  = Total Grade Points ÷ Total Credit Hours<br>
+        Grade Points  = Grade Point Value × Credit Hours<br><br>
+        Cumulative GPA = All Grade Points (all semesters) ÷ All Credit Hours<br><br>
+        Example — Fall Semester:<br>
+        Calc 101  (A,  4cr) = 4.0 × 4 = 16.0<br>
+        English   (B+, 3cr) = 3.3 × 3 =  9.9<br>
+        History   (A−, 3cr) = 3.7 × 3 = 11.1<br>
+        ─────────────────────────────────────<br>
+        GPA = 37.0 ÷ 10 = 3.70
+      </div>
+      <ol class="steps-list">
+        <li><strong>Add your semesters.</strong> Click "Add Semester" for each term. You can rename each semester to match your actual term (Fall 2024, Spring 2025, etc.).</li>
+        <li><strong>Enter your courses.</strong> Add each class with its letter grade and credit hours. Course name is optional — it's just for your reference.</li>
+        <li><strong>Watch the GPA update.</strong> Your semester GPA and cumulative GPA update in real time as you type — no need to hit a calculate button.</li>
+        <li><strong>Customize your scale.</strong> If your school uses a different grading scale, edit the values in the "Grading Scale" panel on the right. Your GPA will recalculate instantly.</li>
+        <li><strong>Read your summary.</strong> The right panel shows your cumulative GPA, total credit hours, and a semester-by-semester GPA comparison chart.</li>
+      </ol>
+    </div>
+
+    <div class="content-section">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            How do I calculate my cumulative college GPA?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">Your cumulative GPA is the weighted average of all your courses across all semesters. Add up all the grade points from every course (grade point value × credit hours) and divide by your total credit hours. This calculator does that automatically — just add all your semesters and courses and your cumulative GPA appears in the summary panel.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            What GPA do I need to get into grad school?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">Most graduate programs require a minimum GPA of 3.0, but competitive programs often look for 3.5 or higher. Top programs like law (T14), medical school, and PhD programs at research universities typically admit applicants with 3.7+ GPAs. That said, GPA is just one factor — research experience, test scores, letters of recommendation, and personal statements all matter too.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            How much will one bad semester hurt my GPA?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">It depends on how many credit hours you've already completed. Early in college, one bad semester has a big impact because there are fewer total credits to dilute it. Later, the effect shrinks. For example: if you have a 3.5 GPA after 90 credits, one 2.0 semester (15 credits) would pull your cumulative GPA to about 3.27. Add all your semesters here and experiment — the live update will show you exactly where you stand.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Does my school use a different grading scale?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">Most US colleges use the standard 4.0 scale, but some schools assign slightly different point values — for example, some don't give A+ a 4.3 while others do, and some schools don't use plus/minus grades at all. Use the "Grading Scale" editor on this page to match your school's exact scale. Your GPA will recalculate instantly with every change.</div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            What is the Dean's List GPA requirement?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a">Dean's List requirements vary by school, but most US universities require a semester GPA of 3.5 or higher, while carrying a full course load (usually 12+ credit hours). Some schools require a 3.7 or higher. Graduating with Latin honors typically requires: Cum Laude (3.5+), Magna Cum Laude (3.7+), Summa Cum Laude (3.9+) — though exact thresholds vary by institution.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="content-section">
+      <h2>More Tools from ScholarTools</h2>
+      <div class="related-grid">
+        <a href="final-grade-calculator.html" class="related-card gold">
+          <div class="related-icon">🎯</div>
+          <div class="related-name">Final Grade Calculator</div>
+          <div class="related-desc">Find out what you need on your final exam to hit your target grade.</div>
+        </a>
+        <a href="gpa-calculator.html" class="related-card green">
+          <div class="related-icon">📊</div>
+          <div class="related-name">GPA Calculator</div>
+          <div class="related-desc">Quick semester or cumulative GPA with letter grades and credit hours.</div>
+        </a>
+        <a href="weighted-grade-calculator.html" class="related-card blue">
+          <div class="related-icon">⚖️</div>
+          <div class="related-name">Weighted Grade Calculator</div>
+          <div class="related-desc">Calculate your grade when each category has a different weight.</div>
+        </a>
+        <a href="#" class="related-card disabled">
+          <div class="related-icon">✨</div>
+          <div class="related-name">Extra Credit Calculator</div>
+          <div class="related-desc">Coming soon — see how extra credit affects your grade.</div>
+        </a>
+      </div>
+    </div>
+
+  </div><!-- end main-col -->
+
+  <!-- RIGHT: SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- CUMULATIVE SUMMARY -->
+    <div class="summary-card">
+      <div class="summary-card-title">Your GPA Summary</div>
+      <div class="cumulative-gpa">
+        <div class="cum-gpa-number" id="cum-gpa-display">—</div>
+        <div class="cum-gpa-label">Cumulative GPA</div>
+        <div><span class="cum-letter" id="cum-letter">—</span></div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-box-val" id="stat-credits">0</div>
+          <div class="stat-box-key">Total Credits</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-val" id="stat-semesters">0</div>
+          <div class="stat-box-key">Semesters</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-val" id="stat-courses">0</div>
+          <div class="stat-box-key">Courses</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-val" id="stat-points">0</div>
+          <div class="stat-box-key">Grade Points</div>
+        </div>
+      </div>
+
+      <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem;">Semester Breakdown</div>
+      <div class="semester-gpa-list" id="sem-gpa-list">
+        <div style="font-size:0.8rem;color:#3a3f50;">Add courses to see breakdown</div>
+      </div>
+    </div>
+
+    <!-- SCALE EDITOR -->
+    <div class="scale-card">
+      <div class="scale-card-title">Grading Scale</div>
+      <div class="scale-card-sub">Edit to match your school's scale.</div>
+      <div class="scale-preset-row">
+        <button class="preset-btn active" onclick="applyPreset('standard', this)">Standard 4.0</button>
+        <button class="preset-btn" onclick="applyPreset('plus4', this)">With A+ = 4.3</button>
+        <button class="preset-btn" onclick="applyPreset('noplusminus', this)">No +/−</button>
+      </div>
+      <div class="scale-rows" id="scale-rows"></div>
+    </div>
+
+  </div><!-- end sidebar -->
+
+</div><!-- end app-wrapper -->
+
+<footer>
+  <p><a href="../index.html">← Back to ScholarTools</a> &nbsp;·&nbsp; Free academic tools for students &nbsp;·&nbsp; No signup required</p>
+  <p style="margin-top:0.6rem;opacity:0.5;">© 2025 ScholarTools. All rights reserved.</p>
+</footer>
+
+<script>
+  // ── GRADING SCALES ──
+  const PRESETS = {
+    standard: {
+      'A+':4.0,'A':4.0,'A-':3.7,
+      'B+':3.3,'B':3.0,'B-':2.7,
+      'C+':2.3,'C':2.0,'C-':1.7,
+      'D+':1.3,'D':1.0,'D-':0.7,
+      'F':0.0
+    },
+    plus4: {
+      'A+':4.3,'A':4.0,'A-':3.7,
+      'B+':3.3,'B':3.0,'B-':2.7,
+      'C+':2.3,'C':2.0,'C-':1.7,
+      'D+':1.3,'D':1.0,'D-':0.7,
+      'F':0.0
+    },
+    noplusminus: {
+      'A':4.0,'B':3.0,'C':2.0,'D':1.0,'F':0.0
+    }
+  };
+
+  let currentScale = { ...PRESETS.standard };
+
+  function buildScaleEditor() {
+    const container = document.getElementById('scale-rows');
+    container.innerHTML = '';
+    Object.entries(currentScale).forEach(([grade, pts]) => {
+      const row = document.createElement('div');
+      row.className = 'scale-row';
+      row.innerHTML = `
+        <div class="scale-grade-label">${grade}</div>
+        <input class="scale-val" type="number" step="0.1" min="0" max="5"
+          value="${pts}" data-grade="${grade}"
+          oninput="onScaleChange(this)" />
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  function onScaleChange(input) {
+    const grade = input.dataset.grade;
+    const val = parseFloat(input.value);
+    if (!isNaN(val)) {
+      currentScale[grade] = val;
+      recalcAll();
+    }
+  }
+
+  function applyPreset(name, btn) {
+    currentScale = { ...PRESETS[name] };
+    buildScaleEditor();
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    rebuildAllGradeSelects();
+    recalcAll();
+  }
+
+  function getGradeOptions(selected) {
+    return Object.keys(currentScale).map(g =>
+      `<option value="${g}"${g === selected ? ' selected' : ''}>${g}</option>`
+    ).join('');
+  }
+
+  function rebuildAllGradeSelects() {
+    document.querySelectorAll('select.grade-sel').forEach(sel => {
+      const current = sel.value;
+      sel.innerHTML = getGradeOptions(current);
+    });
+  }
+
+  // ── SEMESTER MANAGEMENT ──
+  let semesterCount = 0;
+  let courseCounters = {};
+
+  function addSemester(name) {
+    semesterCount++;
+    const sid = semesterCount;
+    courseCounters[sid] = 0;
+    const defaultName = name || `Semester ${sid}`;
+
+    const card = document.createElement('div');
+    card.className = 'semester-card';
+    card.id = `sem-${sid}`;
+    card.innerHTML = `
+      <div class="semester-header">
+        <div class="semester-left">
+          <div class="semester-number">${sid}</div>
+          <input class="semester-name-input" type="text" placeholder="e.g. Fall 2024" value="${defaultName}" oninput="recalcAll()" />
+        </div>
+        <div class="semester-right">
+          <span class="semester-credits-badge" id="sem-credits-${sid}">0 cr</span>
+          <span class="semester-gpa-badge" id="sem-gpa-${sid}">—</span>
+          <button class="collapse-btn" title="Collapse" onclick="toggleCollapse(${sid})">▾</button>
+          <button class="delete-sem-btn" title="Delete semester" onclick="deleteSemester(${sid})">✕</button>
+        </div>
+      </div>
+      <div class="semester-body" id="sem-body-${sid}">
+        <div class="course-col-headers">
+          <div class="col-label">Course</div>
+          <div class="col-label">Grade</div>
+          <div class="col-label">Credits</div>
+          <div></div>
+        </div>
+        <div class="course-rows" id="courses-${sid}"></div>
+        <button class="add-course-btn" onclick="addCourse(${sid})">+ Add Course</button>
+      </div>
+    `;
+    document.getElementById('semesters-container').appendChild(card);
+
+    // seed 3 rows
+    addCourse(sid, '', 'A', '3');
+    addCourse(sid, '', 'A', '3');
+    addCourse(sid, '', 'B+', '3');
+    recalcAll();
+  }
+
+  function deleteSemester(sid) {
+    const el = document.getElementById(`sem-${sid}`);
+    if (el) { el.remove(); recalcAll(); }
+  }
+
+  function toggleCollapse(sid) {
+    const card = document.getElementById(`sem-${sid}`);
+    card.classList.toggle('collapsed');
+  }
+
+  function addCourse(sid, name='', grade='A', credits='') {
+    courseCounters[sid] = (courseCounters[sid] || 0) + 1;
+    const cid = `${sid}-${courseCounters[sid]}`;
+    const row = document.createElement('div');
+    row.className = 'course-row';
+    row.id = `course-${cid}`;
+    row.innerHTML = `
+      <input class="course-name-input" type="text" placeholder="e.g. Calculus I" value="${name}" oninput="recalcAll()" />
+      <select class="grade-sel" onchange="recalcAll()">${getGradeOptions(grade)}</select>
+      <input class="credits-in" type="number" placeholder="3" min="0.5" max="12" step="0.5" value="${credits}" oninput="recalcAll()" />
+      <button class="remove-row-btn" onclick="removeCourse('${cid}')">×</button>
+    `;
+    document.getElementById(`courses-${sid}`).appendChild(row);
+    recalcAll();
+  }
+
+  function removeCourse(cid) {
+    const el = document.getElementById(`course-${cid}`);
+    if (el) { el.remove(); recalcAll(); }
+  }
+
+  // ── RECALCULATE EVERYTHING ──
+  function recalcAll() {
+    let totalPoints = 0, totalCredits = 0, totalCourses = 0;
+    const semCards = document.querySelectorAll('.semester-card');
+    const semBreakdown = [];
+
+    semCards.forEach(card => {
+      const sid = card.id.replace('sem-', '');
+      const rows = card.querySelectorAll('.course-row');
+      let semPoints = 0, semCredits = 0, semCourses = 0;
+
+      rows.forEach(row => {
+        const grade   = row.querySelector('.grade-sel')?.value;
+        const credits = parseFloat(row.querySelector('.credits-in')?.value);
+        if (!grade || isNaN(credits) || credits <= 0) return;
+        const pts = currentScale[grade] ?? 0;
+        semPoints  += pts * credits;
+        semCredits += credits;
+        semCourses++;
+      });
+
+      const semGPA = semCredits > 0 ? semPoints / semCredits : null;
+      const nameInput = card.querySelector('.semester-name-input');
+      const semName = nameInput ? (nameInput.value.trim() || `Semester ${sid}`) : `Semester ${sid}`;
+
+      // update header badges
+      const gpaEl = document.getElementById(`sem-gpa-${sid}`);
+      const crEl  = document.getElementById(`sem-credits-${sid}`);
+      if (gpaEl) gpaEl.textContent = semGPA !== null ? semGPA.toFixed(2) : '—';
+      if (crEl)  crEl.textContent  = semCredits > 0 ? `${semCredits} cr` : '0 cr';
+
+      totalPoints  += semPoints;
+      totalCredits += semCredits;
+      totalCourses += semCourses;
+
+      if (semCredits > 0) {
+        semBreakdown.push({ name: semName, gpa: semGPA, credits: semCredits });
+      }
+    });
+
+    const cumGPA = totalCredits > 0 ? totalPoints / totalCredits : null;
+
+    // update sidebar summary
+    const cumEl = document.getElementById('cum-gpa-display');
+    const letEl = document.getElementById('cum-letter');
+
+    if (cumGPA !== null) {
+      const gpaFixed = cumGPA.toFixed(2);
+      cumEl.textContent = gpaFixed;
+      letEl.textContent = getLetterFromGPA(cumGPA);
+
+      const color = cumGPA >= 3.7 ? '#6ee7b7'
+                  : cumGPA >= 3.3 ? 'var(--accent)'
+                  : cumGPA >= 3.0 ? 'var(--accent4)'
+                  : cumGPA >= 2.0 ? '#f9a8d4'
+                  : 'var(--danger)';
+      cumEl.style.color = color;
+    } else {
+      cumEl.textContent = '—';
+      cumEl.style.color = 'var(--accent4)';
+      letEl.textContent = '—';
+    }
+
+    document.getElementById('stat-credits').textContent   = totalCredits || 0;
+    document.getElementById('stat-semesters').textContent = semBreakdown.length;
+    document.getElementById('stat-courses').textContent   = totalCourses;
+    document.getElementById('stat-points').textContent    = totalPoints > 0 ? (Math.round(totalPoints * 10) / 10) : 0;
+
+    // semester breakdown bars
+    const semList = document.getElementById('sem-gpa-list');
+    if (semBreakdown.length === 0) {
+      semList.innerHTML = '<div style="font-size:0.8rem;color:#3a3f50;">Add courses to see breakdown</div>';
+    } else {
+      semList.innerHTML = '';
+      const maxGPA = Math.max(...semBreakdown.map(s => s.gpa), 4.0);
+      semBreakdown.forEach(s => {
+        const pct = (s.gpa / maxGPA) * 100;
+        const row = document.createElement('div');
+        row.className = 'sem-gpa-row';
+        row.innerHTML = `
+          <span class="sem-gpa-name" title="${s.name}">${s.name}</span>
+          <div class="sem-gpa-bar-wrap">
+            <div class="sem-gpa-bar-track">
+              <div class="sem-gpa-bar-fill" style="width:${pct.toFixed(1)}%"></div>
+            </div>
+          </div>
+          <span class="sem-gpa-val">${s.gpa.toFixed(2)}</span>
+        `;
+        semList.appendChild(row);
+      });
+    }
+  }
+
+  function getLetterFromGPA(gpa) {
+    if (gpa >= 3.85) return 'A';
+    if (gpa >= 3.5)  return 'A−';
+    if (gpa >= 3.15) return 'B+';
+    if (gpa >= 2.85) return 'B';
+    if (gpa >= 2.5)  return 'B−';
+    if (gpa >= 2.15) return 'C+';
+    if (gpa >= 1.85) return 'C';
+    if (gpa >= 1.5)  return 'C−';
+    if (gpa >= 1.0)  return 'D';
+    return 'F';
+  }
+
+  function toggleFaq(btn) {
+    const item = btn.parentElement;
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+
+  // ── INIT ──
+  buildScaleEditor();
+  addSemester('Fall 2024');
+</script>
+
+</body>
+</html>
