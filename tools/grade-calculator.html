@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grade Calculator — Average Your Assignment Grades | ScholarTools</title>
+  <meta name="description" content="Free grade calculator for high school and college students. Average multiple assignment grades, see your letter grade instantly, and find out what score you need to improve. No signup required." />
+  <link rel="canonical" href="https://YOURUSERNAME.github.io/scholartools/tools/grade-calculator.html" />
+
+  <meta property="og:title" content="Grade Calculator — Average Your Assignment Grades | ScholarTools" />
+  <meta property="og:description" content="Add your assignment grades and instantly see your average, letter grade, and GPA equivalent. Free, no signup." />
+  <meta property="og:type" content="website" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Grade Calculator",
+    "url": "https://YOURUSERNAME.github.io/scholartools/tools/grade-calculator.html",
+    "description": "Calculate your average grade across multiple assignments for high school or college.",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161e;
+      --surface2: #1a1e28;
+      --border: rgba(255,255,255,0.07);
+      --accent: #e8c97a;
+      --accent2: #6ee7b7;
+      --accent3: #93c5fd;
+      --accent4: #c4b5fd;
+      --text: #f0f2f7;
+      --muted: #8891a8;
+      --danger: #f87171;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 2.5rem;
+      background: rgba(13,15,20,0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 800; color: var(--text); text-decoration: none; }
+    .logo span { color: var(--accent); }
+    .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-link { color: var(--muted); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: color 0.2s; }
+    .nav-link:hover { color: var(--text); }
+
+    /* ── LAYOUT ── */
+    .page-wrapper { max-width: 820px; margin: 0 auto; padding: 3rem 2rem 6rem; }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); margin-bottom: 2rem; }
+    .breadcrumb a { color: var(--muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--accent); }
+    .breadcrumb span { opacity: 0.4; }
+
+    /* ── PAGE HEADER ── */
+    .page-tag {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: rgba(232,201,122,0.1); border: 1px solid rgba(232,201,122,0.2);
+      color: var(--accent); font-size: 0.75rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.3rem 0.8rem; border-radius: 100px; margin-bottom: 1rem;
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      font-weight: 800; line-height: 1.1;
+      letter-spacing: -0.02em; margin-bottom: 0.8rem;
+    }
+    .page-desc { color: var(--muted); font-size: 1rem; max-width: 560px; font-weight: 300; margin-bottom: 0.8rem; }
+    .page-desc-seo { color: var(--muted); font-size: 0.9rem; max-width: 600px; font-weight: 300; margin-bottom: 2rem; line-height: 1.7; }
+
+    /* ── CALC CARD ── */
+    .calc-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; overflow: hidden; margin-bottom: 2rem;
+    }
+    .calc-header {
+      padding: 1.8rem 2.2rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    }
+    .calc-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; }
+    .calc-subtitle { color: var(--muted); font-size: 0.82rem; margin-top: 0.2rem; }
+
+    /* live average pill in header */
+    .live-avg-pill {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 100px; padding: 0.4rem 1rem;
+      font-size: 0.82rem; color: var(--muted);
+      transition: border-color 0.3s;
+    }
+    .live-avg-pill.active { border-color: rgba(232,201,122,0.3); }
+    .live-avg-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--accent);
+      min-width: 44px; text-align: center;
+    }
+    .live-letter { font-weight: 600; color: var(--text); font-size: 0.85rem; }
+
+    .calc-body { padding: 2rem 2.2rem; }
+
+    /* ── MODE TABS ── */
+    .mode-tabs {
+      display: flex; background: var(--surface2);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.25rem; gap: 0.25rem; margin-bottom: 1.5rem;
+    }
+    .mode-tab {
+      flex: 1; background: none; border: none;
+      color: var(--muted); font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem; font-weight: 600;
+      padding: 0.55rem; border-radius: 7px; cursor: pointer;
+      transition: all 0.2s; text-align: center;
+    }
+    .mode-tab.active { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+
+    /* ── ASSIGNMENT ROWS ── */
+    .rows-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; }
+    .section-label { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+    .add-btn {
+      background: none; border: 1px dashed rgba(232,201,122,0.3);
+      color: var(--accent); font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem; font-weight: 600;
+      padding: 0.3rem 0.8rem; border-radius: 6px; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .add-btn:hover { background: rgba(232,201,122,0.07); }
+
+    /* col headers — percentage mode */
+    .col-headers-pct {
+      display: grid; grid-template-columns: 1fr 110px 36px;
+      gap: 0.6rem; margin-bottom: 0.5rem;
+    }
+    /* col headers — points mode */
+    .col-headers-pts {
+      display: grid; grid-template-columns: 1fr 90px 90px 36px;
+      gap: 0.6rem; margin-bottom: 0.5rem;
+    }
+    .col-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #3a3f50; text-align: center; }
+    .col-label:first-child { text-align: left; }
+
+    .asgn-rows { display: flex; flex-direction: column; gap: 0.55rem; }
+
+    /* percentage row */
+    .asgn-row-pct {
+      display: grid; grid-template-columns: 1fr 110px 36px;
+      gap: 0.6rem; align-items: center;
+      animation: fadeUp 0.18s ease both;
+    }
+    /* points row */
+    .asgn-row-pts {
+      display: grid; grid-template-columns: 1fr 90px 90px 36px;
+      gap: 0.6rem; align-items: center;
+      animation: fadeUp 0.18s ease both;
+    }
+
+    .asgn-name {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+      padding: 0.65rem 0.9rem; outline: none; width: 100%;
+      transition: border-color 0.2s;
+    }
+    .asgn-name:focus { border-color: var(--accent); }
+    .asgn-name::placeholder { color: #3a3f50; }
+
+    input.asgn-num {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+      padding: 0.65rem 0.6rem; outline: none; text-align: center;
+      transition: border-color 0.2s; -moz-appearance: textfield;
+    }
+    input.asgn-num::-webkit-outer-spin-button,
+    input.asgn-num::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input.asgn-num:focus { border-color: var(--accent); }
+    input.asgn-num::placeholder { color: #3a3f50; }
+
+    .remove-btn {
+      background: none; border: none; color: #3a3f50;
+      font-size: 1.2rem; cursor: pointer; transition: color 0.2s;
+      display: flex; align-items: center; justify-content: center; height: 38px;
+    }
+    .remove-btn:hover { color: var(--danger); }
+
+    /* ── GOAL SECTION ── */
+    .goal-section { margin-top: 1.4rem; padding-top: 1.4rem; border-top: 1px solid var(--border); }
+    .goal-label {
+      font-size: 0.78rem; font-weight: 600; letter-spacing: 0.05em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; display: block;
+    }
+    .goal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    input.goal-input {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 1rem;
+      padding: 0.72rem 1rem; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s; -moz-appearance: textfield;
+    }
+    input.goal-input::-webkit-outer-spin-button,
+    input.goal-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input.goal-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,201,122,0.1); }
+    input.goal-input::placeholder { color: #3a3f50; }
+
+    .divider { height: 1px; background: var(--border); margin: 1.6rem 0; }
+
+    /* ── BUTTON ── */
+    .calc-btn {
+      width: 100%; background: var(--accent); color: #0d0f14;
+      font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700;
+      border: none; border-radius: 8px; padding: 0.95rem; cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .calc-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,201,122,0.3); }
+    .calc-btn:active { transform: translateY(0); }
+
+    .error-msg { color: var(--danger); font-size: 0.85rem; margin-top: 0.8rem; display: none; }
+    .error-msg.visible { display: block; }
+
+    /* ── RESULT ── */
+    .result-box { display: none; margin-top: 1.5rem; animation: fadeUp 0.3s ease both; }
+    .result-box.visible { display: block; }
+
+    .result-main {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.8rem;
+      position: relative; overflow: hidden;
+    }
+    .result-main::before {
+      content: ''; position: absolute; top: -80px; left: 50%;
+      transform: translateX(-50%); width: 400px; height: 300px;
+      background: radial-gradient(ellipse, rgba(232,201,122,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .result-top {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1.5rem; margin-bottom: 1.5rem;
+    }
+    .result-grade-big {
+      font-family: 'Playfair Display', serif;
+      font-size: 4.5rem; font-weight: 800; line-height: 1;
+      letter-spacing: -0.03em; color: var(--accent);
+    }
+    .result-grade-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.3rem; }
+    .result-letter-wrap { text-align: center; }
+    .result-letter {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem; font-weight: 800;
+      color: var(--text); display: block;
+    }
+    .result-letter-sub { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* stats row */
+    .result-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0.8rem; margin-bottom: 1.4rem;
+    }
+    .stat-chip {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.8rem; text-align: center;
+    }
+    .stat-chip-val { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--text); }
+    .stat-chip-key { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.1rem; }
+
+    /* assignment breakdown */
+    .breakdown-title { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.7rem; }
+    .breakdown-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.2rem; }
+    .breakdown-item { display: grid; grid-template-columns: 160px 1fr 56px; align-items: center; gap: 0.8rem; font-size: 0.84rem; }
+    .bk-name { color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bk-bar-track { height: 5px; background: var(--surface); border-radius: 100px; overflow: hidden; }
+    .bk-bar-fill { height: 100%; border-radius: 100px; background: var(--accent); transition: width 0.5s ease; }
+    .bk-score { color: var(--muted); font-size: 0.78rem; text-align: right; font-weight: 600; }
+
+    /* goal result */
+    .goal-result {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1rem 1.2rem;
+      font-size: 0.88rem; color: var(--muted); line-height: 1.6;
+    }
+    .goal-result strong { color: var(--text); }
+    .goal-result.achievable { border-color: rgba(110,231,183,0.25); }
+    .goal-result.tough { border-color: rgba(232,201,122,0.25); }
+    .goal-result.impossible { border-color: rgba(248,113,113,0.25); }
+
+    .result-message {
+      text-align: center; margin-top: 1.2rem; padding-top: 1.2rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.88rem; color: var(--muted);
+    }
+    .result-message strong { color: var(--text); }
+
+    /* ── CONTENT ── */
+    .content-section { margin-bottom: 3rem; }
+    .content-section h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; }
+    .content-section p { color: var(--muted); font-size: 0.95rem; line-height: 1.8; margin-bottom: 0.9rem; }
+    .content-section p strong { color: var(--text); }
+
+    .formula-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 3px solid var(--accent); border-radius: 8px;
+      padding: 1.2rem 1.5rem; margin: 1.2rem 0;
+      font-family: monospace; font-size: 0.92rem; color: var(--accent); line-height: 1.7;
+    }
+
+    .steps-list { list-style: none; counter-reset: steps; margin: 1rem 0; }
+    .steps-list li {
+      counter-increment: steps; display: flex; gap: 1rem;
+      margin-bottom: 1rem; color: var(--muted); font-size: 0.95rem; line-height: 1.7;
+    }
+    .steps-list li::before {
+      content: counter(steps);
+      display: flex; align-items: center; justify-content: center;
+      min-width: 28px; height: 28px;
+      background: rgba(232,201,122,0.1); border: 1px solid rgba(232,201,122,0.2);
+      color: var(--accent); font-size: 0.78rem; font-weight: 700;
+      border-radius: 50%; margin-top: 0.15rem;
+    }
+    .steps-list li strong { color: var(--text); }
+
+    /* FAQ */
+    .faq-list { display: flex; flex-direction: column; gap: 0.8rem; }
+    .faq-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .faq-q {
+      width: 100%; background: none; border: none; color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 600;
+      text-align: left; padding: 1.1rem 1.4rem; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+      transition: color 0.2s;
+    }
+    .faq-q:hover { color: var(--accent); }
+    .faq-icon { font-size: 1.2rem; color: var(--muted); transition: transform 0.25s; flex-shrink: 0; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); color: var(--accent); }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; color: var(--muted); font-size: 0.9rem; line-height: 1.75; padding: 0 1.4rem; }
+    .faq-item.open .faq-a { max-height: 300px; padding: 0 1.4rem 1.2rem; }
+
+    /* RELATED */
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+    .related-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; text-decoration: none; color: var(--text); transition: border-color 0.2s, transform 0.2s; }
+    .related-card:hover { transform: translateY(-2px); }
+    .related-card.gold:hover { border-color: rgba(232,201,122,0.3); }
+    .related-card.green:hover { border-color: rgba(110,231,183,0.3); }
+    .related-card.blue:hover { border-color: rgba(147,197,253,0.3); }
+    .related-card.purple:hover { border-color: rgba(196,181,253,0.3); }
+    .related-card.disabled { opacity: 0.5; cursor: default; pointer-events: none; }
+    .related-icon { font-size: 1.3rem; margin-bottom: 0.5rem; }
+    .related-name { font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem; }
+    .related-desc { color: var(--muted); font-size: 0.78rem; }
+
+    /* FOOTER */
+    footer { text-align: center; padding: 2.5rem 2rem; color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--border); }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 600px) {
+      nav { padding: 1rem 1.2rem; }
+      .page-wrapper { padding: 2rem 1.2rem 4rem; }
+      .calc-body { padding: 1.4rem 1.2rem; }
+      .calc-header { padding: 1.4rem 1.2rem; }
+      .col-headers-pct { grid-template-columns: 1fr 90px 30px; gap: 0.4rem; }
+      .asgn-row-pct { grid-template-columns: 1fr 90px 30px; gap: 0.4rem; }
+      .col-headers-pts { grid-template-columns: 1fr 72px 72px 30px; gap: 0.4rem; }
+      .asgn-row-pts { grid-template-columns: 1fr 72px 72px 30px; gap: 0.4rem; }
+      .result-stats { grid-template-columns: 1fr 1fr; }
+      .result-grade-big { font-size: 3.5rem; }
+      .breakdown-item { grid-template-columns: 100px 1fr 50px; }
+      .goal-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" class="logo">Scholar<span>Tools</span></a>
+  <div class="nav-right">
+    <a href="../index.html#tools" class="nav-link">All Tools</a>
+    <a href="../index.html" class="nav-link" style="display:flex;align-items:center;gap:0.4rem;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Home
+    </a>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+
+  <nav class="breadcrumb" aria-label="breadcrumb">
+    <a href="../index.html">ScholarTools</a>
+    <span>›</span>
+    <a href="../index.html#tools">Tools</a>
+    <span>›</span>
+    <span style="color:var(--text)">Grade Calculator</span>
+  </nav>
+
+  <div style="margin-bottom:2.5rem;">
+    <div class="page-tag">📝 Grade Tool</div>
+    <h1>Grade Calculator</h1>
+    <p class="page-desc">Add your assignment scores and instantly see your average grade, letter grade, and GPA equivalent. Works for high school and college.</p>
+    <p class="page-desc-seo">Use this free grade calculator to answer <em>"what is my grade?"</em> — enter your assignment scores as percentages or points earned, and your average grade updates in real time. Works for any class, any grading system, for both high school and college students.</p>
+  </div>
+
+  <!-- CALCULATOR -->
+  <div class="calc-card">
+    <div class="calc-header">
+      <div>
+        <div class="calc-title">Grade Calculator</div>
+        <div class="calc-subtitle">Enter scores as percentages or points earned</div>
+      </div>
+      <div class="live-avg-pill" id="live-pill">
+        <span style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;">Avg</span>
+        <span class="live-avg-val" id="live-avg">—</span>
+        <span class="live-letter" id="live-letter">—</span>
+      </div>
+    </div>
+
+    <div class="calc-body">
+
+      <!-- MODE TABS -->
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="tab-pct" onclick="switchMode('pct')">Percentage Scores</button>
+        <button class="mode-tab" id="tab-pts" onclick="switchMode('pts')">Points Earned</button>
+      </div>
+
+      <!-- PERCENTAGE MODE -->
+      <div id="mode-pct">
+        <div class="rows-header">
+          <span class="section-label">Assignments</span>
+          <button class="add-btn" onclick="addRowPct()">+ Add Assignment</button>
+        </div>
+        <div class="col-headers-pct">
+          <div class="col-label">Assignment Name</div>
+          <div class="col-label">Score (%)</div>
+          <div></div>
+        </div>
+        <div class="asgn-rows" id="rows-pct"></div>
+      </div>
+
+      <!-- POINTS MODE -->
+      <div id="mode-pts" style="display:none;">
+        <div class="rows-header">
+          <span class="section-label">Assignments</span>
+          <button class="add-btn" onclick="addRowPts()">+ Add Assignment</button>
+        </div>
+        <div class="col-headers-pts">
+          <div class="col-label">Assignment Name</div>
+          <div class="col-label">Earned</div>
+          <div class="col-label">Possible</div>
+          <div></div>
+        </div>
+        <div class="asgn-rows" id="rows-pts"></div>
+      </div>
+
+      <!-- GOAL -->
+      <div class="goal-section">
+        <label class="goal-label">Target Grade (optional)</label>
+        <div class="goal-row">
+          <input type="number" class="goal-input" id="goal-input" placeholder="e.g. 90" min="0" max="100" />
+          <input type="number" class="goal-input" id="assignments-left" placeholder="Assignments left (e.g. 3)" min="0" />
+        </div>
+        <p style="color:#3a3f50;font-size:0.78rem;margin-top:0.5rem;">Enter your target % and how many assignments remain to see what you need to average.</p>
+      </div>
+
+      <div class="divider"></div>
+
+      <button class="calc-btn" onclick="calculate()">Calculate My Grade →</button>
+      <div class="error-msg" id="error-msg">⚠ Please add at least one assignment with a valid score.</div>
+
+      <!-- RESULT -->
+      <div class="result-box" id="result-box">
+        <div class="result-main">
+          <div class="result-top">
+            <div>
+              <div class="result-grade-label">Current Average</div>
+              <div class="result-grade-big" id="res-avg">—</div>
+            </div>
+            <div class="result-letter-wrap">
+              <span class="result-letter" id="res-letter">—</span>
+              <span class="result-letter-sub">Letter Grade</span>
+            </div>
+          </div>
+
+          <div class="result-stats">
+            <div class="stat-chip">
+              <div class="stat-chip-val" id="res-count">—</div>
+              <div class="stat-chip-key">Assignments</div>
+            </div>
+            <div class="stat-chip">
+              <div class="stat-chip-val" id="res-high">—</div>
+              <div class="stat-chip-key">Highest</div>
+            </div>
+            <div class="stat-chip">
+              <div class="stat-chip-val" id="res-low">—</div>
+              <div class="stat-chip-key">Lowest</div>
+            </div>
+            <div class="stat-chip">
+              <div class="stat-chip-val" id="res-gpa">—</div>
+              <div class="stat-chip-key">GPA Equiv.</div>
+            </div>
+          </div>
+
+          <div class="breakdown-title">Assignment Breakdown</div>
+          <div class="breakdown-list" id="breakdown-list"></div>
+
+          <div id="goal-result-wrap"></div>
+
+          <div class="result-message" id="result-message"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HOW TO USE -->
+  <div class="content-section">
+    <h2>How to Use This Grade Calculator</h2>
+    <p>This calculator averages your assignment grades so you always know exactly where you stand in any class. It works for both high school and college students, and handles scores entered as percentages or raw points.</p>
+    <div class="formula-box">
+      Simple Average  = Sum of all scores ÷ Number of assignments<br><br>
+      Points Average  = Total points earned ÷ Total points possible × 100<br><br>
+      Example (percentage):<br>
+      Quiz 1: 88%,  Quiz 2: 92%,  Quiz 3: 79%<br>
+      Average = (88 + 92 + 79) ÷ 3 = 86.3%  →  B
+    </div>
+    <ol class="steps-list">
+      <li><strong>Choose your input mode.</strong> Use "Percentage Scores" if your teacher gives you grades like 88% or 42/50. Use "Points Earned" if you want to enter the raw numbers — like 42 points earned out of 50 possible.</li>
+      <li><strong>Add your assignments.</strong> Name each one (optional) and enter the score. Hit "+ Add Assignment" for as many as you need.</li>
+      <li><strong>Set a target (optional).</strong> Enter your target grade and how many assignments are left in the semester. The calculator will tell you what average you need on the remaining work to hit your goal.</li>
+      <li><strong>Calculate.</strong> Your average, letter grade, GPA equivalent, highest score, and lowest score all appear — along with a breakdown bar for each assignment.</li>
+    </ol>
+  </div>
+
+  <!-- FAQ -->
+  <div class="content-section">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          What is my grade if I have a 75%? An 82%?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">On the standard grading scale: 90–100% = A, 80–89% = B, 70–79% = C, 60–69% = D, below 60% = F. So a 75% is a C and an 82% is a B. With plus/minus grades: 75% is a C, and 82% is a B−. Always check your teacher or professor's specific scale — some use 93%+ for an A while others use 90%+.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Does this calculator use a simple average or a weighted average?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">This calculator uses a simple average — it treats every assignment equally. If your class uses a weighted grading system (where homework counts 20%, midterm 30%, final 40%, etc.), use our Weighted Grade Calculator instead, which handles those category weights properly.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          How do I calculate my grade if scores are out of different totals?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">Switch to "Points Earned" mode and enter each assignment's earned points and possible points separately. For example: Quiz (18/20), Homework (47/50), Test (83/100). The calculator converts each to a percentage and averages them correctly — so a 100-point test isn't unfairly weighted against a 20-point quiz.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          What grade do I need on my remaining assignments to get an A?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">Enter your current assignments, then fill in the Target Grade field (90 for an A) and the number of assignments remaining. The calculator will tell you exactly what average you need on the remaining work to reach your goal. If the required score is above 100%, the target is no longer achievable through grades alone — consider asking about extra credit.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Can I drop my lowest grade before calculating?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">Yes — if your teacher drops the lowest grade, simply delete that assignment row using the × button before calculating. Your average will then be computed without that score, matching what your teacher will do at the end of the term.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RELATED -->
+  <div class="content-section">
+    <h2>More Tools from ScholarTools</h2>
+    <div class="related-grid">
+      <a href="final-grade-calculator.html" class="related-card gold">
+        <div class="related-icon">🎯</div>
+        <div class="related-name">Final Grade Calculator</div>
+        <div class="related-desc">Find out what you need on your final exam to hit your target grade.</div>
+      </a>
+      <a href="weighted-grade-calculator.html" class="related-card blue">
+        <div class="related-icon">⚖️</div>
+        <div class="related-name">Weighted Grade Calculator</div>
+        <div class="related-desc">Calculate your grade when each category has a different weight.</div>
+      </a>
+      <a href="gpa-calculator.html" class="related-card green">
+        <div class="related-icon">📊</div>
+        <div class="related-name">GPA Calculator</div>
+        <div class="related-desc">Calculate your semester or cumulative GPA by letter grade.</div>
+      </a>
+      <a href="college-gpa-calculator.html" class="related-card purple">
+        <div class="related-icon">🎓</div>
+        <div class="related-name">College GPA Calculator</div>
+        <div class="related-desc">Track your GPA across multiple semesters with real-time updates.</div>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p><a href="../index.html">← Back to ScholarTools</a> &nbsp;·&nbsp; Free academic tools for students &nbsp;·&nbsp; No signup required</p>
+  <p style="margin-top:0.6rem;opacity:0.5;">© 2025 ScholarTools. All rights reserved.</p>
+</footer>
+
+<script>
+  // ── GRADE SCALE ──
+  function getLetterGrade(pct) {
+    if (pct >= 97) return 'A+';
+    if (pct >= 93) return 'A';
+    if (pct >= 90) return 'A−';
+    if (pct >= 87) return 'B+';
+    if (pct >= 83) return 'B';
+    if (pct >= 80) return 'B−';
+    if (pct >= 77) return 'C+';
+    if (pct >= 73) return 'C';
+    if (pct >= 70) return 'C−';
+    if (pct >= 67) return 'D+';
+    if (pct >= 63) return 'D';
+    if (pct >= 60) return 'D−';
+    return 'F';
+  }
+  function getGPAEquiv(pct) {
+    if (pct >= 93) return '4.0';
+    if (pct >= 90) return '3.7';
+    if (pct >= 87) return '3.3';
+    if (pct >= 83) return '3.0';
+    if (pct >= 80) return '2.7';
+    if (pct >= 77) return '2.3';
+    if (pct >= 73) return '2.0';
+    if (pct >= 70) return '1.7';
+    if (pct >= 67) return '1.3';
+    if (pct >= 63) return '1.0';
+    if (pct >= 60) return '0.7';
+    return '0.0';
+  }
+
+  // ── MODE ──
+  let mode = 'pct';
+  function switchMode(m) {
+    mode = m;
+    document.getElementById('mode-pct').style.display = m === 'pct' ? 'block' : 'none';
+    document.getElementById('mode-pts').style.display = m === 'pts' ? 'block' : 'none';
+    document.getElementById('tab-pct').classList.toggle('active', m === 'pct');
+    document.getElementById('tab-pts').classList.toggle('active', m === 'pts');
+    hideResult();
+    updateLive();
+  }
+
+  // ── PERCENTAGE ROWS ──
+  let pctCount = 0;
+  function addRowPct(name='', score='') {
+    pctCount++;
+    const id = pctCount;
+    const row = document.createElement('div');
+    row.className = 'asgn-row-pct';
+    row.id = `rpct-${id}`;
+    row.innerHTML = `
+      <input class="asgn-name" type="text" placeholder="e.g. Quiz 3" value="${name}" oninput="updateLive()" />
+      <input class="asgn-num pct-score" type="number" placeholder="85" min="0" max="100" value="${score}" oninput="updateLive()" />
+      <button class="remove-btn" onclick="removeRow('rpct-${id}')">×</button>
+    `;
+    document.getElementById('rows-pct').appendChild(row);
+    updateLive();
+  }
+
+  // ── POINTS ROWS ──
+  let ptsCount = 0;
+  function addRowPts(name='', earned='', possible='') {
+    ptsCount++;
+    const id = ptsCount;
+    const row = document.createElement('div');
+    row.className = 'asgn-row-pts';
+    row.id = `rpts-${id}`;
+    row.innerHTML = `
+      <input class="asgn-name" type="text" placeholder="e.g. Homework 4" value="${name}" oninput="updateLive()" />
+      <input class="asgn-num pts-earned" type="number" placeholder="45" min="0" value="${earned}" oninput="updateLive()" />
+      <input class="asgn-num pts-possible" type="number" placeholder="50" min="0" value="${possible}" oninput="updateLive()" />
+      <button class="remove-btn" onclick="removeRow('rpts-${id}')">×</button>
+    `;
+    document.getElementById('rows-pts').appendChild(row);
+    updateLive();
+  }
+
+  function removeRow(id) {
+    const el = document.getElementById(id);
+    if (el) { el.remove(); updateLive(); }
+  }
+
+  // ── LIVE UPDATE ──
+  function updateLive() {
+    const scores = getScores();
+    if (scores.length === 0) {
+      document.getElementById('live-avg').textContent = '—';
+      document.getElementById('live-letter').textContent = '—';
+      document.getElementById('live-pill').classList.remove('active');
+      return;
+    }
+    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+    const avgR = Math.round(avg * 10) / 10;
+    document.getElementById('live-avg').textContent = avgR + '%';
+    document.getElementById('live-letter').textContent = getLetterGrade(avgR);
+    document.getElementById('live-pill').classList.add('active');
+  }
+
+  function getScores() {
+    const scores = [];
+    if (mode === 'pct') {
+      document.querySelectorAll('.pct-score').forEach(el => {
+        const v = parseFloat(el.value);
+        if (!isNaN(v)) scores.push(v);
+      });
+    } else {
+      document.querySelectorAll('.asgn-row-pts').forEach(row => {
+        const earned   = parseFloat(row.querySelector('.pts-earned')?.value);
+        const possible = parseFloat(row.querySelector('.pts-possible')?.value);
+        if (!isNaN(earned) && !isNaN(possible) && possible > 0) {
+          scores.push((earned / possible) * 100);
+        }
+      });
+    }
+    return scores;
+  }
+
+  // ── FULL CALCULATE ──
+  function calculate() {
+    hideResult();
+
+    const scores = [];
+    const labels = [];
+
+    if (mode === 'pct') {
+      document.querySelectorAll('.asgn-row-pct').forEach(row => {
+        const name  = row.querySelector('.asgn-name').value.trim() || 'Assignment';
+        const score = parseFloat(row.querySelector('.pct-score').value);
+        if (!isNaN(score)) { scores.push(score); labels.push({ name, score }); }
+      });
+    } else {
+      document.querySelectorAll('.asgn-row-pts').forEach(row => {
+        const name     = row.querySelector('.asgn-name').value.trim() || 'Assignment';
+        const earned   = parseFloat(row.querySelector('.pts-earned').value);
+        const possible = parseFloat(row.querySelector('.pts-possible').value);
+        if (!isNaN(earned) && !isNaN(possible) && possible > 0) {
+          const pct = (earned / possible) * 100;
+          scores.push(pct);
+          labels.push({ name, score: pct, earned, possible });
+        }
+      });
+    }
+
+    if (scores.length === 0) { showError(); return; }
+
+    const avg  = scores.reduce((a, b) => a + b, 0) / scores.length;
+    const avgR = Math.round(avg * 10) / 10;
+    const high = Math.round(Math.max(...scores) * 10) / 10;
+    const low  = Math.round(Math.min(...scores) * 10) / 10;
+    const letter = getLetterGrade(avgR);
+
+    const gradeColor = avgR >= 90 ? '#6ee7b7'
+                     : avgR >= 80 ? 'var(--accent)'
+                     : avgR >= 70 ? 'var(--accent3)'
+                     : avgR >= 60 ? '#f9a8d4'
+                     : 'var(--danger)';
+
+    document.getElementById('res-avg').textContent    = avgR + '%';
+    document.getElementById('res-avg').style.color    = gradeColor;
+    document.getElementById('res-letter').textContent = letter;
+    document.getElementById('res-letter').style.color = gradeColor;
+    document.getElementById('res-count').textContent  = scores.length;
+    document.getElementById('res-high').textContent   = high + '%';
+    document.getElementById('res-low').textContent    = low + '%';
+    document.getElementById('res-gpa').textContent    = getGPAEquiv(avgR);
+
+    // breakdown bars
+    const bList = document.getElementById('breakdown-list');
+    bList.innerHTML = '';
+    labels.forEach(item => {
+      const scoreR = Math.round(item.score * 10) / 10;
+      const barPct = Math.min(item.score, 100);
+      const barColor = item.score >= 90 ? '#6ee7b7'
+                     : item.score >= 80 ? 'var(--accent)'
+                     : item.score >= 70 ? 'var(--accent3)'
+                     : item.score >= 60 ? '#f9a8d4'
+                     : 'var(--danger)';
+      const div = document.createElement('div');
+      div.className = 'breakdown-item';
+      const scoreLabel = mode === 'pts' && item.earned !== undefined
+        ? `${item.earned}/${item.possible}`
+        : `${scoreR}%`;
+      div.innerHTML = `
+        <div class="bk-name" title="${item.name}">${item.name}</div>
+        <div class="bk-bar-track">
+          <div class="bk-bar-fill" style="width:0%;background:${barColor}" data-target="${barPct}"></div>
+        </div>
+        <div class="bk-score">${scoreLabel}</div>
+      `;
+      bList.appendChild(div);
+    });
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.bk-bar-fill').forEach(b => b.style.width = b.dataset.target + '%');
+    });
+
+    // goal calculation
+    const goalWrap = document.getElementById('goal-result-wrap');
+    goalWrap.innerHTML = '';
+    const goalVal  = parseFloat(document.getElementById('goal-input').value);
+    const asgnLeft = parseFloat(document.getElementById('assignments-left').value);
+    if (!isNaN(goalVal) && !isNaN(asgnLeft) && asgnLeft > 0) {
+      const totalNeeded  = goalVal * (scores.length + asgnLeft);
+      const currentTotal = scores.reduce((a, b) => a + b, 0);
+      const neededAvg    = (totalNeeded - currentTotal) / asgnLeft;
+      const neededR      = Math.round(neededAvg * 10) / 10;
+
+      let cls = 'achievable', msg = '';
+      if (neededR <= 100) {
+        if (neededR <= 70) { cls = 'achievable'; msg = `You're on track! You only need to average <strong>${neededR}%</strong> on your remaining ${asgnLeft} assignment${asgnLeft > 1 ? 's' : ''} to hit <strong>${goalVal}%</strong>.`; }
+        else if (neededR <= 90) { cls = 'tough'; msg = `Achievable — you need to average <strong>${neededR}%</strong> on your remaining ${asgnLeft} assignment${asgnLeft > 1 ? 's' : ''}. Stay focused.`; }
+        else { cls = 'tough'; msg = `You need to average <strong>${neededR}%</strong> on your remaining ${asgnLeft} assignment${asgnLeft > 1 ? 's' : ''} — challenging but possible. Give it everything.`; }
+      } else {
+        cls = 'impossible';
+        msg = `A <strong>${goalVal}%</strong> average is no longer achievable through remaining assignments alone. Consider asking your teacher about extra credit.`;
+      }
+      const goalDiv = document.createElement('div');
+      goalDiv.className = `goal-result ${cls}`;
+      goalDiv.style.marginBottom = '1rem';
+      goalDiv.innerHTML = `🎯 <strong>Goal of ${goalVal}%:</strong> ${msg}`;
+      goalWrap.appendChild(goalDiv);
+    }
+
+    // message
+    let msg = '';
+    if (avgR >= 93) msg = `Excellent work — you're in the <strong>A</strong> range. Keep it up.`;
+    else if (avgR >= 90) msg = `Strong <strong>A−</strong>. A little more consistency and you'll hit a full A.`;
+    else if (avgR >= 87) msg = `Good <strong>B+</strong>. Your highest scores show what you're capable of.`;
+    else if (avgR >= 80) msg = `Solid <strong>B</strong>. Focus on bringing up your lowest assignments.`;
+    else if (avgR >= 70) msg = `You're passing. Consistent effort on remaining work can move this up.`;
+    else msg = `Below average right now — talk to your teacher and make a plan to recover.`;
+
+    document.getElementById('result-message').innerHTML = msg;
+    document.getElementById('result-box').classList.add('visible');
+  }
+
+  function showError() { document.getElementById('error-msg').classList.add('visible'); }
+  function hideResult() {
+    document.getElementById('result-box').classList.remove('visible');
+    document.getElementById('error-msg').classList.remove('visible');
+  }
+
+  function toggleFaq(btn) {
+    const item = btn.parentElement;
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+
+  // ── SEED ──
+  addRowPct('Quiz 1', '');
+  addRowPct('Quiz 2', '');
+  addRowPct('Homework', '');
+  addRowPct('Midterm', '');
+
+  addRowPts('Quiz 1', '', '20');
+  addRowPts('Homework', '', '50');
+  addRowPts('Midterm', '', '100');
+</script>
+
+</body>
+</html>
