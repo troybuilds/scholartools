@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://troybuilds.github.io/scholartools/sitemap.xml
+Sitemap: https://tryscholartools.com/sitemap.xml
